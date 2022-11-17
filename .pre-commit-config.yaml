@@ -1,0 +1,56 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/qoomon/git-conventional-commits
+    rev: v2.3.0
+    hooks:
+      - id: conventional-commits
+
+  - repo: https://github.com/psf/black
+    rev: 22.10.0
+    hooks:
+      - id: black-jupyter
+        args: [--config=pyproject.toml]
+
+  - repo: https://github.com/srstevenson/nb-clean
+    rev: 2.4.0
+    hooks:
+      - id: nb-clean
+        args:
+          - --preserve-cell-outputs
+
+  - repo: https://github.com/mwouts/jupytext
+    rev: v1.14.1
+    hooks:
+      - id: jupytext
+        args:
+          - --sync
+          - --pipe
+          - "black - --config=pyproject.toml"
+          - --pipe
+          - "isort - --settings-path=pyproject.toml"
+          - --pipe
+          - "pycln - --config=pyproject.toml"
+        additional_dependencies:
+          - black==22.10.0
+          - isort==5.10.1
+          - pycln==2.1.2
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        files: "\\.(py)$"
+        args: [--settings-path=pyproject.toml]
+
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.1.2
+    hooks:
+      - id: pycln
+        args: [--config=pyproject.toml]

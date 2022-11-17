@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "data5006-movie-recommender"
+version = "0.1.0"
+description = "Package for DATA5006 Movie Recommender Project"
+authors = ["David Natanael <85625605+dvnatanael@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.10.8"
+python-dotenv = "^0.21.0"
+black = { extras = ["jupyter"], version = "^22.10.0" }
+isort = "5.10.1"
+pycln = "2.1.2"
+pre-commit = "^2.20.0"
+numpy = "^1.23.4"
+pandas = "^1.5.1"
+jupyterlab = "^3.5.0"
+jupytext = "^1.14.1"
+nb-clean = "2.4.0"
+ipywidgets = "<8.0.0"
+streamlit = "^1.14.1"
+tensorflow-gpu = "<2.11.0"
+tensorflow-datasets = "^4.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black-jupyter]
+target-version = ['py310']
+
+[tool.isort]
+float_to_top = true
+profile = "black"
+py_version = 310
+skip = [".gitignore"]
+treat_comments_as_code = ["# %%"]
+
+[tool.pycln]
+all = true
+silence = true
+
+[tool.jupytext]
+formats = "ipynb,py:percent"
