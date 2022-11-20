@@ -6,21 +6,24 @@ authors = ["David Natanael <85625605+dvnatanael@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.10.8"
+python = "~3.10.6"
 python-dotenv = "^0.21.0"
-black = { extras = ["jupyter"], version = "^22.10.0" }
+black = "22.10.0"
 isort = "5.10.1"
 pycln = "2.1.2"
 pre-commit = "^2.20.0"
-numpy = "^1.23.4"
+numpy = "^1.23.5"
 pandas = "^1.5.1"
 jupyterlab = "^3.5.0"
 jupytext = "^1.14.1"
 nb-clean = "2.4.0"
 ipywidgets = "<8.0.0"
 streamlit = "^1.14.1"
-tensorflow-gpu = "<2.11.0"
-tensorflow-datasets = "^4.7.0"
+tensorflow-gpu = { version = "~2.10.0", markers = 'sys_platform != "darwin"' }
+tensorflow-datasets = { version = "^4.7.0", markers = 'sys_platform != "darwin"' }
+
+[tool.poetry.extras]
+jupyter = ["black"]
 
 
 [build-system]
