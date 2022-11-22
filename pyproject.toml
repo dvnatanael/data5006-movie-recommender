@@ -46,3 +46,4 @@ silence = true
 
 [tool.jupytext]
 formats = "ipynb,py:percent"
+
