@@ -6,7 +6,7 @@ authors = ["David Natanael <85625605+dvnatanael@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "~3.10.6"
+python = "~3.10.0"
 python-dotenv = "^0.21.0"
 black = "22.10.0"
 isort = "5.10.1"
@@ -20,11 +20,9 @@ nb-clean = "2.4.0"
 ipywidgets = "<8.0.0"
 streamlit = "^1.14.1"
 tensorflow-gpu = { version = "~2.10.0", markers = 'sys_platform != "darwin"' }
-tensorflow-datasets = { version = "^4.7.0", markers = 'sys_platform != "darwin"' }
 
 [tool.poetry.extras]
 jupyter = ["black"]
-
 
 [build-system]
 requires = ["poetry-core"]
