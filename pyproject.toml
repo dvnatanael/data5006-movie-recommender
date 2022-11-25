@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "~3.10.0"
 python-dotenv = "^0.21.0"
-black = "22.10.0"
+black = {version = "22.10.0", extras = ["jupyter"]}
 isort = "5.10.1"
 pycln = "2.1.2"
 pre-commit = "^2.20.0"
@@ -20,9 +20,6 @@ nb-clean = "2.4.0"
 ipywidgets = "<8.0.0"
 streamlit = "^1.14.1"
 tensorflow-gpu = { version = "~2.10.0", markers = 'sys_platform != "darwin"' }
-
-[tool.poetry.extras]
-jupyter = ["black"]
 
 [build-system]
 requires = ["poetry-core"]
