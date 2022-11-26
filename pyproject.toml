@@ -34,6 +34,7 @@ profile = "black"
 py_version = 310
 skip = [".gitignore"]
 treat_comments_as_code = ["# %%"]
+lines_after_imports = 2
 
 [tool.pycln]
 all = true
