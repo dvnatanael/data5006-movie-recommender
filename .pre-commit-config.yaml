@@ -24,6 +24,9 @@ repos:
       - id: nb-clean
         args:
           - --preserve-cell-outputs
+          - --preserve-cell-metadata
+          - lines_to_next_cell
+          - --
 
   - repo: https://github.com/mwouts/jupytext
     rev: v1.14.1
