@@ -42,4 +42,5 @@ silence = true
 
 [tool.jupytext]
 formats = "ipynb,py:percent"
+cell_metadata_filter = "-all,lines_to_next_cell"
 notebook_metadata_filter = "-kernelspec"

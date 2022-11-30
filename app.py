@@ -1,7 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     cell_metadata_filter: -all
+#     cell_metadata_filter: -all,lines_to_next_cell
 #     formats: ipynb,py:percent
 #     notebook_metadata_filter: -kernelspec
 #     text_representation:
@@ -34,5 +34,3 @@ with dataset:
         options=df["title"],
     )
     df.query("title == @movie")["movieId"].iloc[0]
-
-# %%
