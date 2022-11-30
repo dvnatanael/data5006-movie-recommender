@@ -15,10 +15,16 @@
 import os
 
 import pandas as pd
+import requests
 import streamlit as st
+from dotenv import load_dotenv
 
 from utils import calculate_movie_rating_similarity, get_utility_matrix
 
+
+# %%
+load_dotenv()
+movie_api = os.getenv("MOVIE_API")
 
 # %%
 def main():
@@ -49,10 +55,33 @@ def main():
             options=movies_df["title"],
         )
         movie_id = movies_df.loc[movies_df["title"] == movie, "movieId"].iloc[0]
+        imdb_id = f"tt0{df2.query('movieId == @movie_id')['imdbId'].iloc[0]}"
 
     corr_df = calculate_movie_rating_similarity(utility_matrix)
     top20 = corr_df[movie_id].sort_values(ascending=False).iloc[1:21]
     movies_df.set_index("movieId").loc[top20.index, "title"].reset_index(drop=True)
+
+    # select genre
+    genre = st.multiselect(
+        label="Select a Genre",
+        options=df["genres"]
+        .str.split(pat="|")
+        .explode()
+        .drop_duplicates()
+        .set_axis(range(20)),
+    )
+
+    # movie poster
+    load_dotenv()
+    movie_api = os.getenv("MOVIE_API")
+    url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={movie_api}"
+    req = requests.get(url).json()
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.image(req["Poster"])
+    with col2:
+        st.subheader(req["Title"])
+        st.write(req["Plot"])
 
 
 # %%
