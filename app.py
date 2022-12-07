@@ -62,6 +62,20 @@ def main(omdb_api: str):
         top20 = corr_df[movie_id].sort_values(ascending=False).iloc[1:21]
         movies_df.set_index("movieId").loc[top20.index, "title"].reset_index(drop=True)
 
+        new_movies_df = movies_df.assign(
+            genres=lambda x: x.genres.str.split("|")
+        ).explode("genres")
+        movies = (
+            new_movies_df.pivot(
+                values="genres", index=["movieId", "title"], columns="genres"
+            )
+            .notnull()
+            .astype("int")
+        )
+
+        corr_df_2 = movies.T.corr()
+        st.write(corr_df_2.loc[:, 100].squeeze().sort_values(ascending=False).iloc[:20])
+
         poster_container, plot_container = st.columns([1, 2])
         if movie_info["Response"] == "True":
             with poster_container:
