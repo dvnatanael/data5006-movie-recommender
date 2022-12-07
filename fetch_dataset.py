@@ -18,20 +18,21 @@ from urllib.request import urlretrieve
 
 
 # %%
-def download_and_extract(src_url: str, data_dir: str) -> None:
+def download_and_extract(src_url: str, dest_path: str) -> None:
     # setup data folder
-    download_dir = os.path.join(data_dir, "download")
+    download_dir = os.path.join(dest_path, "download")
 
     if not os.path.isdir(download_dir):
         os.makedirs(download_dir)
 
     # download the dataset
-    zip_path = os.path.join(download_dir, src_url[src_url.rfind("/") + 1 :])
-    urlretrieve(src_url, zip_path)
+    filename = src_url[src_url.rfind("/") + 1 :]
+    filepath = os.path.join(download_dir, filename)
+    urlretrieve(src_url, filepath)
 
     # extract the dataset
-    with zipfile.ZipFile(zip_path, "r") as f:
-        f.extractall(data_dir)
+    with zipfile.ZipFile(filepath, "r") as f:
+        f.extractall(dest_path)
 
 
 # %%
