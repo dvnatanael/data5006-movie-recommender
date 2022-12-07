@@ -80,4 +80,11 @@ if __name__ == "__main__":
     if omdb_api is None:
         raise ValueError(".env must contain OMDB API key")
 
+    data_dir = os.path.join(os.curdir, "data")
+    if not (os.path.isdir(data_dir) and len(os.listdir(data_dir))):
+        from fetch_dataset import download_and_extract
+
+        src_url = "https://files.grouplens.org/datasets/movielens/ml-latest-small.zip"
+        download_and_extract(src_url, data_dir)
+
     main(omdb_api)
