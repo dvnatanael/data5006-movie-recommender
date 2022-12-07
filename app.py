@@ -45,7 +45,10 @@ def main(omdb_api: str):
 
     with body:
         # select movies
-        movie = st.selectbox(label="Select a Movie", options=movies_df["title"])
+        movie = st.selectbox(
+            label="Select a Movie",
+            options=movies_df["title"].squeeze().sort_values(),
+        )
         movie_id = movies_df.loc[movies_df["title"] == movie, "movieId"].iloc[0]
 
         # show movie info
