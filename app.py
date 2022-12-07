@@ -45,32 +45,53 @@ def main(omdb_api: str):
 
     with body:
         # select movies
-        movie = st.selectbox(label="Select a Movie", options=movies_df["title"])
+        movie = st.selectbox(
+            label="Select a Movie",
+            options=movies_df["title"].sort_values(),
+        )
         movie_id = movies_df.loc[movies_df["title"] == movie, "movieId"].iloc[0]
-
-        # fetch movie info
-        imdb_id = f"tt0{links_df.query('movieId == @movie_id')['imdbId'].iloc[0]}"
-
-        url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={omdb_api}"
-        movie_info = requests.get(url).json()
 
         # show movie info
         raw_df = pd.merge(ratings_df, movies_df, on="movieId")
         utility_matrix = get_utility_matrix(raw_df)
 
         corr_df = calculate_movie_rating_similarity(utility_matrix)
-        top20 = corr_df[movie_id].sort_values(ascending=False).iloc[1:21]
-        movies_df.set_index("movieId").loc[top20.index, "title"].reset_index(drop=True)
+        recommendations = corr_df[movie_id].sort_values(ascending=False)
+        recommended_movies = (
+            movies_df.set_index("movieId")
+            .loc[recommendations.index, "title"]
+            .reset_index(drop=True)
+        )
 
-        poster_container, plot_container = st.columns([1, 2])
-        if movie_info["Response"] == "True":
-            with poster_container:
-                st.image(movie_info["Poster"])
-            with plot_container:
-                st.subheader(movie_info["Title"])
-                f"Released: {movie_info['Released']}"
-                f"Duration: {movie_info['Runtime']}"
-                movie_info["Plot"]
+        recommendation_count = 0
+        # do not recommend the selected movie
+        for movie in recommended_movies[1:]:
+            if recommendation_count == 5:
+                break
+
+            poster_container, plot_container = st.columns([1, 2])
+
+            # fetch movie info
+            recommended_movie_id = movies_df.loc[
+                movies_df["title"] == movie, "movieId"
+            ].iloc[0]
+            recommended_movie_imdbid = links_df.query(
+                "movieId == @recommended_movie_id"
+            )["imdbId"].iloc[0]
+
+            imdb_id = f"tt{recommended_movie_imdbid:07d}"
+            url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={omdb_api}"
+            movie_info = requests.get(url).json()
+
+            if movie_info["Response"] == "True":
+                recommendation_count += 1
+                with poster_container:
+                    st.image(movie_info["Poster"])
+                with plot_container:
+                    st.subheader(movie_info["Title"])
+                    f"Released: {movie_info['Released']}"
+                    f"Duration: {movie_info['Runtime']}"
+                    movie_info["Plot"]
 
 
 # %%
@@ -79,5 +100,12 @@ if __name__ == "__main__":
     omdb_api = os.getenv("OMDB_API")
     if omdb_api is None:
         raise ValueError(".env must contain OMDB API key")
+
+    data_dir = os.path.join(os.curdir, "data")
+    if not (os.path.isdir(data_dir) and len(os.listdir(data_dir))):
+        from fetch_dataset import download_and_extract
+
+        src_url = "https://files.grouplens.org/datasets/movielens/ml-latest-small.zip"
+        download_and_extract(src_url, data_dir)
 
     main(omdb_api)
