@@ -20,14 +20,14 @@ from urllib.request import urlretrieve
 # %%
 def download_and_extract(src_url: str, dest_path: str) -> None:
     # setup data folder
-    download_dir = os.path.join(dest_path, "download")
+    download_dir: str = os.path.join(dest_path, "download")
 
     if not os.path.isdir(download_dir):
         os.makedirs(download_dir)
 
     # download the dataset
-    filename = src_url[src_url.rfind("/") + 1 :]
-    filepath = os.path.join(download_dir, filename)
+    filename: str = src_url[src_url.rfind("/") + 1 :]
+    filepath: str = os.path.join(download_dir, filename)
     urlretrieve(src_url, filepath)
 
     # extract the dataset
