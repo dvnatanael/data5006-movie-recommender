@@ -58,9 +58,24 @@ def main(omdb_api: str):
         raw_df = pd.merge(ratings_df, movies_df, on="movieId")
         utility_matrix = get_utility_matrix(raw_df)
 
-        corr_df = calculate_movie_rating_similarity(utility_matrix)
+        movies = (
+            movies_df.assign(genres=lambda x: x["genres"].str.split("|"))
+            .explode("genres")
+            .pivot(values="genres", index=["movieId", "title"], columns="genres")
+            .notnull()
+            .astype("int")
+            .T
+        )
+        corr_df_1 = calculate_movie_rating_similarity(utility_matrix)
+        corr_df_2 = calculate_movie_rating_similarity(movies)
+
+        alpha = 0.2
+        corr_df = corr_df_1 + alpha * (corr_df_2 - corr_df_1)
+
         top20 = corr_df[movie_id].sort_values(ascending=False).iloc[1:21]
         movies_df.set_index("movieId").loc[top20.index, "title"].reset_index(drop=True)
+
+        st.write(corr_df_2.loc[:, 100].squeeze().sort_values(ascending=False).iloc[:20])
 
         poster_container, plot_container = st.columns([1, 2])
         if movie_info["Response"] == "True":
