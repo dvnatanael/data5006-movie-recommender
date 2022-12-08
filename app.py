@@ -69,11 +69,14 @@ def main(omdb_api: str):
 
         alpha = 0.2
         corr_df = corr_df_1 + alpha * (corr_df_2 - corr_df_1)
-        recommendations = corr_df[[movie_id]].sort_values(by=movie_id, ascending=False)
+        recommendations = (
+            corr_df.loc[:, [movie_id]]
+            .drop(index=movie_id)  # do not recommend the selected movie
+            .sort_values(by=movie_id, ascending=False)
+        )
 
         recommendation_count = 0
-        # do not recommend the selected movie
-        for movie_id in recommendations.index[1:]:
+        for movie_id in recommendations.index:
             if recommendation_count == 5:
                 break
 
