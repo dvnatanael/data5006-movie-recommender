@@ -58,7 +58,7 @@ def main(omdb_api: str):
         movies = (
             movies_df.assign(genres=lambda x: x["genres"].str.split("|"))
             .explode("genres")
-            .pivot(values="genres", index=["movieId", "title"], columns="genres")
+            .pivot(values="genres", index="movieId", columns="genres")
             .notnull()
             .astype("int")
             .T
@@ -68,28 +68,20 @@ def main(omdb_api: str):
 
         alpha = 0.2
         corr_df = corr_df_1 + alpha * (corr_df_2 - corr_df_1)
-        recommendations = corr_df[movie_id].sort_values(ascending=False)
-        recommended_movies = (
-            movies_df.set_index("movieId")
-            .loc[recommendations.index, "title"]
-            .reset_index(drop=True)
-        )
+        recommendations = corr_df[[movie_id]].sort_values(by=movie_id, ascending=False)
 
         recommendation_count = 0
         # do not recommend the selected movie
-        for movie in recommended_movies[1:]:
+        for movie_id in recommendations.index[1:]:
             if recommendation_count == 5:
                 break
 
             poster_container, plot_container = st.columns([1, 2])
 
             # fetch movie info
-            recommended_movie_id = movies_df.loc[
-                movies_df["title"] == movie, "movieId"
+            recommended_movie_imdbid = links_df.loc[
+                links_df["movieId"] == movie_id, "imdbId"
             ].iloc[0]
-            recommended_movie_imdbid = links_df.query(
-                "movieId == @recommended_movie_id"
-            )["imdbId"].iloc[0]
 
             imdb_id = f"tt{recommended_movie_imdbid:07d}"
             url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={omdb_api}"
