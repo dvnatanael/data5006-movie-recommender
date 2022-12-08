@@ -45,5 +45,20 @@ def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 # %%
 @st.cache(ttl=SECONDS_IN_A_DAY)
+def item_genre_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
+    return (
+        df.loc[:, ["movieId", "genres"]]
+        .drop_duplicates(keep="first", ignore_index=True)
+        .assign(genres=lambda x: x["genres"].str.split("|"))
+        .explode("genres")
+        .pivot(values="genres", index="movieId", columns="genres")
+        .notnull()
+        .astype("int")
+        .T
+    )
+
+
+# %%
+@st.cache(ttl=SECONDS_IN_A_DAY)
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return df.corr()
