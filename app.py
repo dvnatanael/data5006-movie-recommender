@@ -49,7 +49,7 @@ def main(omdb_api: str):
             label="Select a Movie",
             options=movies_df["title"].squeeze().sort_values(),
         )
-        movie_id = movies_df.loc[movies_df["title"] == movie, "movieId"].iloc[0]
+        movie_id = movies_df.query("title == @movie")["movieId"].squeeze()
 
         # show movie info
         raw_df = pd.merge(ratings_df, movies_df, on="movieId")
@@ -80,9 +80,9 @@ def main(omdb_api: str):
             poster_container, plot_container = st.columns([1, 2])
 
             # fetch movie info
-            recommended_movie_imdbid = links_df.loc[
-                links_df["movieId"] == movie_id, "imdbId"
-            ].iloc[0]
+            recommended_movie_imdbid = links_df.query("movieId == @movie_id")[
+                "imdbId"
+            ].squeeze()
 
             imdb_id = f"tt{recommended_movie_imdbid:07d}"
             url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={omdb_api}"
