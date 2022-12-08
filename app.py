@@ -19,7 +19,7 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 
-from utils import calculate_movie_rating_similarity, get_utility_matrix
+from similarity import correlation_matrix, user_item_interactions_matrix
 
 
 # %%
@@ -53,7 +53,7 @@ def main(omdb_api: str):
 
         # show movie info
         raw_df = pd.merge(ratings_df, movies_df, on="movieId")
-        utility_matrix = get_utility_matrix(raw_df)
+        utility_matrix = user_item_interactions_matrix(raw_df)
 
         movies = (
             movies_df.assign(genres=lambda x: x["genres"].str.split("|"))
@@ -64,8 +64,8 @@ def main(omdb_api: str):
             .T
         )
         # corr between 2 cols may be NA; mwe: [[0, 0], [0, 0]]
-        corr_df_1 = calculate_movie_rating_similarity(utility_matrix).fillna(0)
-        corr_df_2 = calculate_movie_rating_similarity(movies)
+        corr_df_1 = correlation_matrix(utility_matrix).fillna(0)
+        corr_df_2 = correlation_matrix(movies)
 
         alpha = 0.2
         corr_df = corr_df_1 + alpha * (corr_df_2 - corr_df_1)
@@ -109,11 +109,11 @@ if __name__ == "__main__":
     if omdb_api is None:
         raise ValueError(".env must contain OMDB API key")
 
+    src_url = "https://files.grouplens.org/datasets/movielens/ml-latest-small.zip"
     data_dir = os.path.join(os.curdir, "data")
     if not (os.path.isdir(data_dir) and len(os.listdir(data_dir))):
         from fetch_dataset import download_and_extract
 
-        src_url = "https://files.grouplens.org/datasets/movielens/ml-latest-small.zip"
         download_and_extract(src_url, data_dir)
 
     main(omdb_api)
