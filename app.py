@@ -63,7 +63,8 @@ def main(omdb_api: str):
             .astype("int")
             .T
         )
-        corr_df_1 = calculate_movie_rating_similarity(utility_matrix)
+        # corr between 2 cols may be NA; mwe: [[0, 0], [0, 0]]
+        corr_df_1 = calculate_movie_rating_similarity(utility_matrix).fillna(0)
         corr_df_2 = calculate_movie_rating_similarity(movies)
 
         alpha = 0.2
