@@ -23,7 +23,7 @@ def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
         return df["num_ratings"] * df["mean_rating"] / (df["num_ratings"] + 4)
 
     def mean_center_ratings(df: pd.DataFrame) -> pd.Series:
-        return df["rating"] - df["mean_rating"]
+        return df["rating"] - df["damped_mean_rating"]
 
     df_statistics = (
         df.groupby("movieId")
