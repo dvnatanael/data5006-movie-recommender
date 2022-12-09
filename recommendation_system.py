@@ -19,7 +19,7 @@ from constants import SECONDS_IN_A_DAY
 
 
 # %%
-@st.cache(ttl=SECONDS_IN_A_DAY)
+@st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
 def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
     def damp_mean_ratings(df: pd.DataFrame) -> pd.Series:
         return df["num_ratings"] * df["mean_rating"] / (df["num_ratings"] + 4)
@@ -44,7 +44,7 @@ def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # %%
-@st.cache(ttl=SECONDS_IN_A_DAY)
+@st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
 def item_genre_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return (
         df.loc[:, ["movieId", "genres"]]
@@ -59,6 +59,31 @@ def item_genre_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # %%
-@st.cache(ttl=SECONDS_IN_A_DAY)
+@st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return df.corr()
+
+
+# %%
+@st.cache(ttl=300)
+def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame:
+    # get corresponding movie id
+    movie_id = (
+        user_movie_df.query("title == @title")["movieId"].drop_duplicates().squeeze()
+    )
+
+    # show movie info
+    user_movie_utility_matrix = user_item_interactions_matrix(user_movie_df)
+    genre_movie_utility_matrix = item_genre_interactions_matrix(user_movie_df)
+
+    # corr between 2 cols may be NA; mwe: [[0, 0], [0, 0]]
+    user_movie_corr_df = correlation_matrix(user_movie_utility_matrix).fillna(0)
+    genre_movie_corr_df = correlation_matrix(genre_movie_utility_matrix)
+
+    alpha = 0.2
+    corr_df = user_movie_corr_df + alpha * (genre_movie_corr_df - user_movie_corr_df)
+    return (
+        corr_df.loc[:, [movie_id]]
+        .drop(index=movie_id)  # do not recommend the selected movie
+        .sort_values(by=movie_id, ascending=False)  # type: ignore
+    )
