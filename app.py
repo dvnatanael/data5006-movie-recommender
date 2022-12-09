@@ -45,10 +45,10 @@ def load_dataset(path: str) -> tuple:
 def fetch_movie_info(movie_id: int, links_df: pd.DataFrame, omdb_api_key: str) -> dict:
     # get the imdb_id for the given movid_id
     imdb_id = links_df.query("movieId == @movie_id")["imdbId"].squeeze()
+    imdb_id = f"tt{imdb_id:07d}"
 
     # get the movie information from the OMDB API
-    imdb_url = f"http://www.omdbapi.com/?i=tt{imdb_id:07d}&apikey={omdb_api_key}"
-
+    imdb_url = f"http://www.omdbapi.com/?apikey={omdb_api_key}&i={imdb_id}"
     return requests.get(imdb_url).json()
 
 
@@ -95,9 +95,10 @@ def main(omdb_api_key: str) -> None:
             recommendations = get_recommendations(movie, user_movie_df)
 
         # show the top 5 recommendations
+        max_recommendations = 5
         recommendation_count = 0
         for movie_id in recommendations.index:
-            if recommendation_count == 5:
+            if recommendation_count == max_recommendations:
                 break
 
             movie_info = fetch_movie_info(movie_id, links_df, omdb_api_key)
