@@ -55,14 +55,14 @@ def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame
 
     # show movie info
     user_movie_utility_matrix = user_item_interactions_matrix(user_movie_df)
-    movie_genre_utility_matrix = item_genre_interactions_matrix(user_movie_df)
+    genre_movie_utility_matrix = item_genre_interactions_matrix(user_movie_df)
 
     # corr between 2 cols may be NA; mwe: [[0, 0], [0, 0]]
-    corr_df_1 = correlation_matrix(user_movie_utility_matrix).fillna(0)
-    corr_df_2 = correlation_matrix(movie_genre_utility_matrix)
+    user_movie_corr_df = correlation_matrix(user_movie_utility_matrix).fillna(0)
+    genre_movie_corr_df = correlation_matrix(genre_movie_utility_matrix)
 
     alpha = 0.2
-    corr_df = corr_df_1 + alpha * (corr_df_2 - corr_df_1)
+    corr_df = user_movie_corr_df + alpha * (genre_movie_corr_df - user_movie_corr_df)
     return (
         corr_df.loc[:, [movie_id]]
         .drop(index=movie_id)  # do not recommend the selected movie
