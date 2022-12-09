@@ -12,6 +12,8 @@
 # ---
 
 # %%
+import os
+
 import pandas as pd
 import streamlit as st
 
@@ -62,6 +64,24 @@ def item_genre_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
 @st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return df.corr()
+
+
+# %%
+@st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
+def load_dataset(path: str) -> tuple:
+    def read_csv(filename: str) -> pd.DataFrame:
+        return pd.read_csv(os.path.join(path, filename))
+
+    ratings_df = read_csv("ratings.csv")
+    movies_df = read_csv("movies.csv")
+    tags_df = read_csv("tags.csv")
+    links_df = read_csv("links.csv")
+
+    # convert unix timestamps to datetime
+    ratings_df["timestamp"] = pd.to_datetime(ratings_df["timestamp"], unit="s")
+    tags_df["timestamp"] = pd.to_datetime(tags_df["timestamp"], unit="s")
+
+    return ratings_df, movies_df, links_df, tags_df
 
 
 # %%

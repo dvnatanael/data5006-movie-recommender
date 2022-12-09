@@ -19,26 +19,7 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 
-from constants import SECONDS_IN_A_DAY
-from recommendation_system import get_recommendations
-
-
-# %%
-@st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
-def load_dataset(path: str) -> tuple:
-    def read_csv(filename: str) -> pd.DataFrame:
-        return pd.read_csv(os.path.join(path, filename))
-
-    ratings_df = read_csv("ratings.csv")
-    movies_df = read_csv("movies.csv")
-    tags_df = read_csv("tags.csv")
-    links_df = read_csv("links.csv")
-
-    # convert unix timestamps to datetime
-    ratings_df["timestamp"] = pd.to_datetime(ratings_df["timestamp"], unit="s")
-    tags_df["timestamp"] = pd.to_datetime(tags_df["timestamp"], unit="s")
-
-    return ratings_df, movies_df, links_df, tags_df
+from recommendation_system import get_recommendations, load_dataset
 
 
 # %%
@@ -69,8 +50,9 @@ def show_movie_info(movie_info: dict) -> None:
 
 
 # %%
-def main(omdb_api_key: str) -> None:
-    data_dir = os.path.join(".", "data", "ml-latest-small")
+def main(omdb_api_key: str, *, data_dir: str | None = None) -> None:
+    if data_dir is None:
+        data_dir = os.path.join(".", "data", "ml-latest-small")
 
     # load the data
     ratings_df, movies_df, links_df, tags_df = load_dataset(data_dir)
