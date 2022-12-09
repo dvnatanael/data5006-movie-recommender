@@ -72,7 +72,7 @@ def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame
         user_movie_df.query("title == @title")["movieId"].drop_duplicates().squeeze()
     )
 
-    # show movie info
+    # calculate interaction matrices
     user_movie_utility_matrix = user_item_interactions_matrix(user_movie_df)
     genre_movie_utility_matrix = item_genre_interactions_matrix(user_movie_df)
 
@@ -80,6 +80,7 @@ def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame
     user_movie_corr_df = correlation_matrix(user_movie_utility_matrix).fillna(0)
     genre_movie_corr_df = correlation_matrix(genre_movie_utility_matrix)
 
+    # relative importance of genre correlation compared to user rating correlation
     alpha = 0.2
     corr_df = user_movie_corr_df + alpha * (genre_movie_corr_df - user_movie_corr_df)
     return (
