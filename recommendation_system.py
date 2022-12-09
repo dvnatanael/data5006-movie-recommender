@@ -65,7 +65,7 @@ def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # %%
-@st.cache(ttl=300)
+@st.cache(ttl=300, show_spinner=False)
 def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame:
     # get corresponding movie id
     movie_id = (

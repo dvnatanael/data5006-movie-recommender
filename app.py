@@ -86,7 +86,8 @@ def main(omdb_api_key: str) -> None:
             options=movie_titles_df,
         )  # type: ignore
 
-        recommendations = get_recommendations(movie, user_movie_df)
+        with st.spinner("`Getting recommendations...`"):
+            recommendations = get_recommendations(movie, user_movie_df)
 
         recommendation_count = 0
         for movie_id in recommendations.index:
