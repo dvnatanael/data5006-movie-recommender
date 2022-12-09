@@ -66,7 +66,7 @@ def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame
     return (
         corr_df.loc[:, [movie_id]]
         .drop(index=movie_id)  # do not recommend the selected movie
-        .sort_values(by=movie_id, ascending=False)
+        .sort_values(by=movie_id, ascending=False)  # type: ignore
     )
 
 
