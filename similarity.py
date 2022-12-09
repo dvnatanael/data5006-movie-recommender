@@ -15,9 +15,11 @@
 import pandas as pd
 import streamlit as st
 
+from constants import SECONDS_IN_A_DAY
+
 
 # %%
-@st.cache(ttl=86400)
+@st.cache(ttl=SECONDS_IN_A_DAY)
 def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
     def damp_mean_ratings(df: pd.DataFrame) -> pd.Series:
         return df["num_ratings"] * df["mean_rating"] / (df["num_ratings"] + 4)
@@ -42,6 +44,6 @@ def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # %%
-@st.cache(ttl=86400)
+@st.cache(ttl=SECONDS_IN_A_DAY)
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return df.corr()
