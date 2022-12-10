@@ -22,24 +22,29 @@ from constants import SECONDS_IN_A_DAY
 
 # %%
 @st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
-def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
+def mean_center_ratings(df: pd.DataFrame) -> pd.Series:
     def damp_mean_ratings(df: pd.DataFrame) -> pd.Series:
         return df["num_ratings"] * df["mean_rating"] / (df["num_ratings"] + 4)
 
-    def mean_center_ratings(df: pd.DataFrame) -> pd.Series:
-        return df["rating"] - df["damped_mean_rating"]
-
-    df_statistics = (
+    damped_mean_rating = (
         df.groupby("movieId")
         .agg(
             num_ratings=pd.NamedAgg(column="rating", aggfunc=len),
             mean_rating=pd.NamedAgg(column="rating", aggfunc="mean"),
         )
-        .assign(damped_mean_rating=damp_mean_ratings)
+        .pipe(damp_mean_ratings)
+        .to_frame(name="damped_mean_rating")
+        .merge(df, how="right", left_index=True, right_on="movieId")
+        .loc[:, "damped_mean_rating"]
     )
+    return df["rating"] - damped_mean_rating
+
+
+# %%
+@st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
+def user_item_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return (
-        df.join(df_statistics, on="movieId")
-        .assign(mean_centered_rating=mean_center_ratings)
+        df.assign(mean_centered_rating=mean_center_ratings)
         .pivot(index="userId", columns="movieId", values="mean_centered_rating")
         .fillna(0)
     )
