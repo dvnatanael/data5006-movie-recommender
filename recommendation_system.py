@@ -68,7 +68,7 @@ def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 # %%
 @st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
-def load_dataset(path: str) -> tuple:
+def load_dataset(path: str) -> dict[str, pd.DataFrame]:
     def read_csv(filename: str) -> pd.DataFrame:
         return pd.read_csv(os.path.join(path, filename))
 
@@ -81,7 +81,17 @@ def load_dataset(path: str) -> tuple:
     ratings_df["timestamp"] = pd.to_datetime(ratings_df["timestamp"], unit="s")
     tags_df["timestamp"] = pd.to_datetime(tags_df["timestamp"], unit="s")
 
-    return ratings_df, movies_df, links_df, tags_df
+    movie_titles_df = movies_df["title"].squeeze().sort_values()  # type: ignore
+    user_movie_df = pd.merge(ratings_df, movies_df, on="movieId")
+
+    return {
+        "ratings": ratings_df,
+        "movies": movies_df,
+        "links": links_df,
+        "tags": tags_df,
+        "movie titles": movie_titles_df,
+        "user movie interactions": user_movie_df,
+    }
 
 
 # %%

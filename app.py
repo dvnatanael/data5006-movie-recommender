@@ -55,9 +55,10 @@ def main(omdb_api_key: str, *, data_dir: str | None = None) -> None:
         data_dir = os.path.join(".", "data", "ml-latest-small")
 
     # load the data
-    ratings_df, movies_df, links_df, tags_df = load_dataset(data_dir)
-    movie_titles_df = movies_df["title"].squeeze().sort_values()
-    user_movie_df = pd.merge(ratings_df, movies_df, on="movieId")
+    dataset = load_dataset(data_dir)
+    links_df = dataset["links"]
+    movie_titles_df = dataset["movie titles"]
+    user_movie_df = dataset["user movie interactions"]
 
     # create website layout
     header = st.container()
