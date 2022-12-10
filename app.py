@@ -65,7 +65,7 @@ def main(omdb_api_key: str, *, data_dir: str | None = None) -> None:
     body = st.container()
 
     with header:
-        st.title("Premiere Movies Catered Just for You")
+        st.title("Pick Me A Movie")
 
     with body:
         # select movie
