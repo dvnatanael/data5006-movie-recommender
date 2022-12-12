@@ -16,8 +16,13 @@ import os
 import zipfile
 from urllib.request import urlretrieve
 
+import streamlit as st
+
+from constants import SECONDS_IN_A_DAY
+
 
 # %%
+@st.cache(ttl=7 * SECONDS_IN_A_DAY, show_spinner=False)
 def download_and_extract(src_url: str, dest_path: str) -> None:
     # setup data folder
     download_dir: str = os.path.join(dest_path, "download")

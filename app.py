@@ -19,6 +19,7 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 
+from fetch_dataset import download_and_extract
 from recommendation_system import get_recommendations, load_dataset
 
 
@@ -74,6 +75,8 @@ def main(omdb_api_key: str, *, data_dir: str | None = None) -> None:
             options=movie_titles_df,
         )  # type: ignore
 
+        st.subheader(f"Movies similar to {movie}:")
+
         with st.spinner("`Getting recommendations...`"):
             recommendations = get_recommendations(movie, user_movie_df)
 
@@ -102,9 +105,7 @@ if __name__ == "__main__":
     # download and extract the dataset if needed
     src_url = "https://files.grouplens.org/datasets/movielens/ml-latest-small.zip"
     data_dir = os.path.join(os.curdir, "data")
-    if not (os.path.isdir(data_dir) and len(os.listdir(data_dir))):
-        from fetch_dataset import download_and_extract
-
-        download_and_extract(src_url, data_dir)
+    dataset_dir = os.path.join(data_dir, "ml-latest-small")
+    download_and_extract(src_url, data_dir)
 
     main(omdb_api_key)
