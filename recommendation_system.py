@@ -16,6 +16,7 @@ import os
 
 import pandas as pd
 import streamlit as st
+import tensorflow_probability as tfp
 
 from constants import SECONDS_IN_A_DAY
 
@@ -33,6 +34,7 @@ def mean_center_ratings(df: pd.DataFrame) -> pd.Series:
             mean_rating=pd.NamedAgg(column="rating", aggfunc="mean"),
         )
         .pipe(damp_mean_ratings)
+        .astype("float32")
         .to_frame(name="damped_mean_rating")
         .merge(df, how="right", left_index=True, right_on="movieId")
         .loc[:, "damped_mean_rating"]
@@ -60,7 +62,7 @@ def item_genre_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
         .explode("genres")
         .pivot(values="genres", index="movieId", columns="genres")
         .notnull()
-        .astype("int")
+        .astype("uint8")
         .T
     )
 
@@ -68,7 +70,8 @@ def item_genre_interactions_matrix(df: pd.DataFrame) -> pd.DataFrame:
 # %%
 @st.cache(ttl=SECONDS_IN_A_DAY, show_spinner=False)
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    return df.corr()
+    corr = tfp.stats.correlation(df.to_numpy(dtype="float16"))
+    return pd.DataFrame(corr, columns=df.columns, index=df.columns)
 
 
 # %%
@@ -86,6 +89,8 @@ def load_dataset(path: str) -> dict[str, pd.DataFrame]:
     ratings_df["timestamp"] = pd.to_datetime(ratings_df["timestamp"], unit="s")
     tags_df["timestamp"] = pd.to_datetime(tags_df["timestamp"], unit="s")
 
+    ratings_df["rating"] = ratings_df["rating"].astype("float32")
+
     movie_titles_df = movies_df["title"].squeeze().sort_values()  # type: ignore
     user_movie_df = pd.merge(ratings_df, movies_df, on="movieId")
 
@@ -100,7 +105,7 @@ def load_dataset(path: str) -> dict[str, pd.DataFrame]:
 
 
 # %%
-@st.cache(ttl=300, show_spinner=False)
+# @st.cache(ttl=300, show_spinner=False)
 def get_recommendations(title: str, user_movie_df: pd.DataFrame) -> pd.DataFrame:
     # get corresponding movie id
     movie_id = (
